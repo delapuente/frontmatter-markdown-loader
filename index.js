@@ -21,7 +21,12 @@ module.exports = function (source) {
   const options = loaderUtils.getOptions(this) || {}
   const requestedMode = Array.isArray(options.mode) ? options.mode : [Mode.HTML];
   const enabled = (mode) => requestedMode.includes(mode);
+  const resourcePath = this.resourcePath;
 
+  return transform(source, resourcePath, options, enabled);
+}
+
+function transform(source, resourcePath, options, enabled) {
   let output = '';
   const addProperty = (key, value) => {
     output += `
@@ -37,7 +42,7 @@ module.exports = function (source) {
   if (enabled(Mode.BODY)) addProperty('body', stringify(fm.body));
   if (enabled(Mode.META)) {
     const meta = {
-      resourcePath: this.resourcePath
+      resourcePath
     };
     addProperty('meta', stringify(meta));
   }
