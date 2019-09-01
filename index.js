@@ -1,6 +1,7 @@
 const loaderUtils = require('loader-utils')
 const frontmatter = require('front-matter')
 const Mode = require('./mode')
+const extractDocuments = require('./extractDocuments')
 
 const md = require('markdown-it')({
   html: true,
@@ -22,6 +23,8 @@ module.exports = function (source) {
   const requestedMode = Array.isArray(options.mode) ? options.mode : [Mode.HTML];
   const enabled = (mode) => requestedMode.includes(mode);
   const resourcePath = this.resourcePath;
+
+  const documents = extractDocuments(source);
 
   return transform(source, resourcePath, options, enabled);
 }
