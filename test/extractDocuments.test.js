@@ -76,6 +76,11 @@ ${anonymousDoc}`;
     expect(content).toEqual([anonymousDoc, anonymousDoc].join('\n'))
   });
 
+  it("trims the names", () => {
+    extractDocuments(nameddoc('   test   '));
+    expect(result[0].name).toEqual('test');
+  });
+
   it("preserves blanks in the documents", () => {
     const docsWithBlanks = `
 

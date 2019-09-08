@@ -64,7 +64,7 @@ class FMDocumentFinder {
 
   _getLastDocument() {
     const document = {
-      name: this._documentName,
+      name: this._documentName.trim(),
       content: this._extractDocContent(this._startIndex, this._source.length)
     };
     this._done = true;
