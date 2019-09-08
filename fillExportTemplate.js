@@ -1,12 +1,33 @@
+/**
+ * Assemble the source code for the object exported by the loader. The object
+ * act also as a proxy of the first document.
+ *
+ * In addition, the object has the `all` and `named` properties with a list of
+ * all the documents in the file and a map of named ones by name repectively.
+ * @param {Array<Object<string, string>>} namedTransformations
+ */
 function fillTemplate(namedTransformations) {
   const transformations =
     namedTransformations.map(({ transformed }) => transformed);
 
+  const namedItems =
+    namedTransformations
+    .filter(({ name }) => !!name )
+    .map(({ name, transformed }) => {
+      return `${JSON.stringify(name)}:${transformed}`;
+    });
+
   return `({
   _docs: [${transformations.join(', ')}],
 
-  get allDocs() {
+  _named: {${namedItems.join(', ')}},
+
+  get all() {
     return this._docs;
+  },
+
+  get named() {
+    return this._named;
   },
 
   get attributes() {

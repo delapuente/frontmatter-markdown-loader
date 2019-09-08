@@ -45,19 +45,28 @@ describe("fillExportTemplate", () => {
     expect(result.meta).toEqual(defaultDoc.meta);
   });
 
-  it("has the property `allDocs` with all the documents in same order", () => {
+  it("has the property `all` with all the documents in same order", () => {
     const documents = [defaultDoc, unnamedDoc, namedDoc]
     const namedTransformations = documents.map((doc) => {
       return { name: '_', transformed: JSON.stringify(doc) };
     });
     fillExportTemplate(namedTransformations);
-    result.allDocs.forEach((doc, index) => {
+    result.all.forEach((doc, index) => {
       const expected = documents[index];
-      expect(doc.attributes).toEqual(expected.attributes);
-      expect(doc.body).toEqual(expected.body);
-      expect(doc.html).toEqual(expected.html);
-      expect(doc.vue).toEqual(expected.vue);
-      expect(doc.meta).toEqual(expected.meta);
+      expect(doc).toEqual(expected);
     })
+  });
+
+  it("has the property `named` with a map of documents by name", () => {
+    const documents = [
+      ['default', defaultDoc], ['', unnamedDoc], ['test', namedDoc]];
+    const namedTransformations = documents.map(([name, doc]) => {
+      return { name, transformed: JSON.stringify(doc) };
+    });
+    fillExportTemplate(namedTransformations);
+    expect(Object.keys(result.named)).toHaveLength(2);
+    expect(result.named).toHaveProperty('default', defaultDoc);
+    expect(result.named).toHaveProperty('test', namedDoc);
+    expect(result.named).not.toHaveProperty('');
   });
 });
