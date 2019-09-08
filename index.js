@@ -26,10 +26,10 @@ module.exports = function (source) {
 
   const namedSources = extractDocuments(source);
   const documents = namedSources.map(parse);
-  const firstDocument = documents[0];
+  const namedTransformations =
+    documents.map(dumpWithOptions(resourcePath, options, enabled));
 
-  const transformed = dump(firstDocument, resourcePath, options, enabled);
-  return `module.exports = { ${transformed} }`
+  return `module.exports = { ${namedTransformations[0].transformed} }`;
 }
 
 function parse({ name, content }, options) {
@@ -40,6 +40,15 @@ function parse({ name, content }, options) {
     attributes: fm.attributes,
     html: fm.html,
     body: fm.body
+  }
+}
+
+function dumpWithOptions(resourcePath, options, enabled) {
+  return function (document) {
+    return {
+      name: document.name,
+      transformed: dump(document, resourcePath, options, enabled)
+    }
   }
 }
 
