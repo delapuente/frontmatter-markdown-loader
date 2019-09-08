@@ -31,7 +31,7 @@ module.exports = function (source) {
     documents.map(dumpWithOptions(resourcePath, options, enabled));
   const output = fillExportTemplate(namedTransformations);
 
-  return `module.exports = { ${namedTransformations[0].transformed} }`;
+  return `module.exports = ${output}`;
 }
 
 function parse({ name, content }, options) {
@@ -49,7 +49,7 @@ function dumpWithOptions(resourcePath, options, enabled) {
   return function (document) {
     return {
       name: document.name,
-      transformed: dump(document, resourcePath, options, enabled)
+      transformed: `{ ${dump(document, resourcePath, options, enabled)} }`
     }
   }
 }
