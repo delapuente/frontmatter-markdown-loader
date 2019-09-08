@@ -191,3 +191,51 @@ const md = require('markdown-it')({ html: true })
 ```
 
 can specify the class name of the root element on the imported Vue's template.
+
+## Multiple mode
+
+Multiple mode enable writing multiple frontmatter docs in the same file.
+
+For enabling multiple mode, set the option `multiple` to `true`.
+
+```js
+{
+  test: /\.md$/,
+  loader: 'frontmatter-markdown-loader'
+  options: {
+    multiple: true
+  }
+}
+```
+
+Start a new document by separating it with `---` followed with the name of the new document or `_` for creating an anonymous document.
+
+```md
+<!-- multiple-docs.md -->
+---
+title: One document
+---
+Contents
+
+---another
+title: Another document
+---
+More contents
+```
+
+The loaded module is a proxy for the very first document:
+
+```js
+import docs from 'multiple-docs.md'
+docs.name //=> "default"
+docs.attributes //=> { "title": "One document" }
+```
+
+You can access all the documents through the properties `all` or `namedDocs`:
+
+```js
+docs.all //=> list with all the documents
+docs.all[1].name //=> "another"
+docs.namedDocs //=> object with the document objects by name
+docs.namedDocs.another.body //=> "More contents"
+```
