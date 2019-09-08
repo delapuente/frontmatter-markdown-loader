@@ -62,6 +62,7 @@ function dump(document, resourcePath, options, enabled) {
     `;
   };
 
+  addProperty('name', stringify(document.name));
   addProperty('attributes', stringify(document.attributes));
   if (enabled(Mode.HTML)) addProperty('html', stringify(document.html));
   if (enabled(Mode.BODY)) addProperty('body', stringify(document.body));
