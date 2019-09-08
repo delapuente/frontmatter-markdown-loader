@@ -5,6 +5,10 @@ function fillTemplate(namedTransformations) {
   return `({
   _docs: [${transformations.join(', ')}],
 
+  get allDocs() {
+    return this._docs;
+  },
+
   get attributes() {
     return this._docs[0].attributes;
   },
