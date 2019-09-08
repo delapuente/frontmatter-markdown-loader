@@ -25,13 +25,30 @@ module.exports = function (source) {
   const enabled = (mode) => requestedMode.includes(mode);
   const resourcePath = this.resourcePath;
 
-  const namedSources = extractDocuments(source);
+  const namedSources =
+    options.multiple ?
+    normalizeNames(extractDocuments(source), options) :
+    [{ name: 'default', content: source }];
+
   const documents = namedSources.map(parse);
   const namedTransformations =
     documents.map(dumpWithOptions(resourcePath, options, enabled));
   const output = fillExportTemplate(namedTransformations);
 
   return `module.exports = ${output}`;
+}
+
+function normalizeNames(namedSources) {
+  return namedSources.map(({ name, content }, index) => {
+    let newName = name;
+    if (name === '') {
+      newName = defaultName;
+    }
+    if (name === '_') {
+      newName = '';
+    }
+    return { name: newName, content };
+  });
 }
 
 function parse({ name, content }, options) {
