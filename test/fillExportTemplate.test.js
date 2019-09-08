@@ -55,10 +55,10 @@ describe("fillExportTemplate", () => {
       return { name: doc.name, transformed: JSON.stringify(doc) };
     });
     fillExportTemplate(namedTransformations);
-    expect(Object.keys(result.namedMap)).toHaveLength(2);
-    expect(result.namedMap).toHaveProperty('default', defaultDoc);
-    expect(result.namedMap).toHaveProperty('test', namedDoc);
-    expect(result.namedMap).not.toHaveProperty('');
+    expect(Object.keys(result.namedDocs)).toHaveLength(2);
+    expect(result.namedDocs).toHaveProperty('default', defaultDoc);
+    expect(result.namedDocs).toHaveProperty('test', namedDoc);
+    expect(result.namedDocs).not.toHaveProperty('');
   });
 
   it("top-level API mimics first document API", () => {

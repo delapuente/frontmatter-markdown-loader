@@ -27,7 +27,7 @@ function fillTemplate(namedTransformations) {
     return this._docs;
   },
 
-  get namedMap() {
+  get namedDocs() {
     return this._named;
   },
 
