@@ -26,9 +26,9 @@ module.exports = function (source) {
   const resourcePath = this.resourcePath;
 
   const namedSources =
-    options.multiple ?
-    normalizeNames(extractDocuments(source), options) :
-    [{ name: 'default', content: source }];
+    !options.multiple ?
+    [{ name: 'default', content: source }] :
+    normalizeNames(extractDocuments(source), options);
 
   const documents = namedSources.map(parse);
   const namedTransformations =
