@@ -3,6 +3,17 @@ const ANONYMOUS_DELIMITER = '---\n';
 const NO_NAME = '';
 const END_OF_FILE = {};
 
+/**
+ * Enable iteration through the frontmatter documents in a file. The iterator
+ * looks for separator of the form `---name` at the beginning of one line. All
+ * the content between two of these marks is considered a document.
+ *
+ * One unnamed document is allowed (i.e. starting with `---`) at the beginning
+ * of the file to recognize the common and normal case of having just one
+ * frontmatter document.
+ *
+ * The iterator does not care about the semantics of the frontmatter.
+ */
 class FMDocumentFinder {
   constructor(source) {
     this._source = source;
@@ -79,6 +90,9 @@ class FMDocumentFinder {
   }
 }
 
+/**
+ * Return a list of objects with `name` and `content` keys.
+ */
 module.exports = function (source) {
   return [...new FMDocumentFinder(source)]
 }
