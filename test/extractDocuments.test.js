@@ -43,12 +43,14 @@ describe("extractDocuments", () => {
     const indices = [1, 2, 3];
     const docNames = indices.map(index => `doc${index}`);
     const documents = docNames.map(name => nameddoc(name));
-    const severalDocuments = documents.join("\n\n");
+    const severalDocuments = documents.join("\n\n") + "\n\n";
     extractDocuments(severalDocuments);
     expect(result).toHaveLength(indices.length);
     result.forEach(({ name, content }, index) => {
       expect(name).toEqual(docNames[index]);
-      expect(content).toEqual(anonymousDoc);
+      expect(content).toEqual(`${anonymousDoc}
+
+`);
     });
   });
 
@@ -60,7 +62,7 @@ ${nameddoc('doc1')}`;
     const [doc1, doc2] = result;
     expect(doc1.name).toEqual("");
     expect(doc2.name).toEqual("doc1");
-    expect(doc1.content).toEqual(anonymousDoc);
+    expect(doc1.content).toEqual(`${anonymousDoc}\n`);
     expect(doc2.content).toEqual(anonymousDoc);
   });
 
@@ -74,7 +76,7 @@ ${anonymousDoc}`;
     expect(content).toEqual([anonymousDoc, anonymousDoc].join('\n'))
   });
 
-  it("trims the documents", () => {
+  it("preserves blanks in the documents", () => {
     const docsWithBlanks = `
 
 
@@ -86,9 +88,16 @@ ${nameddoc("doc1")}
 `;
     extractDocuments(docsWithBlanks);
     expect(result).toHaveLength(2);
-    result.forEach(({ content }) => {
-      expect(content).toEqual(anonymousDoc);
-    })
+    expect(result[0].content).toEqual(`
+
+
+${anonymousDoc}
+
+`);
+    expect(result[1].content).toEqual(`${anonymousDoc}
+
+
+`)
   });
 
   it("does not recognize documents if they don't start at the beginning of the line", () => {
@@ -104,9 +113,15 @@ ${anonymousDoc}
     extractDocuments(docsWithBlanks);
     expect(result).toHaveLength(1);
     expect(result[0].name).toEqual('');
-    expect(result[0].content).toEqual(`${anonymousDoc}
+    expect(result[0].content).toEqual(`
 
-  ${nameddoc("doc1")}`);
+
+${anonymousDoc}
+
+  ${nameddoc("doc1")}
+
+
+`);
   });
 
   it("cannot recognazie content-only named docs", () => {

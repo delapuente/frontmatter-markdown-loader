@@ -70,8 +70,7 @@ class FMDocumentFinder {
   _extractDocContent(startIndex, endIndex) {
     return this._source
       .substring(startIndex, endIndex)
-      .replace(this._documentDelimiter, ANONYMOUS_DELIMITER)
-      .trim();
+      .replace(this._documentDelimiter, ANONYMOUS_DELIMITER);
   }
 
   _advanceSearchTo({ name, startIndex }) {

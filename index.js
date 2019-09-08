@@ -2,7 +2,6 @@ const loaderUtils = require('loader-utils')
 const frontmatter = require('front-matter')
 const Mode = require('./mode')
 const extractDocuments = require('./extractDocuments')
-const mapDocuments = require('./mapDocuments')
 
 const md = require('markdown-it')({
   html: true,
@@ -29,7 +28,8 @@ module.exports = function (source) {
   const documents = namedSources.map(parse);
   const firstDocument = documents[0];
 
-  return dump(firstDocument, resourcePath, options, enabled);
+  const transformed = dump(firstDocument, resourcePath, options, enabled);
+  return `module.exports = { ${transformed} }`
 }
 
 function parse({ name, content }, options) {
@@ -106,5 +106,5 @@ function dump(document, resourcePath, options, enabled) {
     addProperty('vue', `{${vueOutput}}`);
   }
 
-  return `module.exports = { ${output} }`;
+  return output;
 }
