@@ -2,6 +2,7 @@ const loaderUtils = require('loader-utils')
 const frontmatter = require('front-matter')
 const Mode = require('./mode')
 const extractDocuments = require('./extractDocuments')
+const fillExportTemplate = require('./fillExportTemplate')
 
 const md = require('markdown-it')({
   html: true,
@@ -28,6 +29,7 @@ module.exports = function (source) {
   const documents = namedSources.map(parse);
   const namedTransformations =
     documents.map(dumpWithOptions(resourcePath, options, enabled));
+  const output = fillExportTemplate(namedTransformations);
 
   return `module.exports = { ${namedTransformations[0].transformed} }`;
 }
