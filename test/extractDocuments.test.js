@@ -1,6 +1,4 @@
 import ExtractDocuments from "../extractDocuments";
-import { isTemplateElement, exportAllDeclaration } from "@babel/types";
-import M from "minimatch";
 
 let result;
 
@@ -29,14 +27,14 @@ describe("extractDocuments", () => {
   it("recognizes a regular frontmatter document", () => {
     extractDocuments(anonymousDoc);
     expect(result).toHaveLength(1);
-    const [[name, content]] = result;
+    const [{ name, content }] = result;
     expect(name).toEqual("");
     expect(content).toEqual(anonymousDoc);
   });
 
   it("recognizes a named frontmatter document", () => {
     const named = nameddoc("doc1");
-    const [[name, content]] = extractDocuments(named);
+    const [{ name, content }] = extractDocuments(named);
     expect(name).toEqual("doc1");
     expect(content).toEqual(anondoc());
   })
@@ -48,7 +46,7 @@ describe("extractDocuments", () => {
     const severalDocuments = documents.join("\n\n");
     extractDocuments(severalDocuments);
     expect(result).toHaveLength(indices.length);
-    result.forEach(([name, content], index) => {
+    result.forEach(({ name, content }, index) => {
       expect(name).toEqual(docNames[index]);
       expect(content).toEqual(anonymousDoc);
     });
@@ -60,10 +58,10 @@ ${nameddoc('doc1')}`;
     extractDocuments(mixedDocs);
     expect(result).toHaveLength(2);
     const [doc1, doc2] = result;
-    expect(doc1[0]).toEqual("");
-    expect(doc2[0]).toEqual("doc1");
-    expect(doc1[1]).toEqual(anonymousDoc);
-    expect(doc2[1]).toEqual(anonymousDoc);
+    expect(doc1.name).toEqual("");
+    expect(doc2.name).toEqual("doc1");
+    expect(doc1.content).toEqual(anonymousDoc);
+    expect(doc2.content).toEqual(anonymousDoc);
   });
 
   it("does not recognizes an anonymous after the first named one", () => {
@@ -71,7 +69,7 @@ ${nameddoc('doc1')}`;
 ${anonymousDoc}`;
     extractDocuments(mixedDocs);
     expect(result).toHaveLength(1);
-    const [[name, content]] = result;
+    const [{ name, content }] = result;
     expect(name).toEqual("doc1")
     expect(content).toEqual([anonymousDoc, anonymousDoc].join('\n'))
   });
@@ -88,7 +86,7 @@ ${nameddoc("doc1")}
 `;
     extractDocuments(docsWithBlanks);
     expect(result).toHaveLength(2);
-    result.forEach(([_, content]) => {
+    result.forEach(({ content }) => {
       expect(content).toEqual(anonymousDoc);
     })
   });
@@ -105,9 +103,21 @@ ${anonymousDoc}
 `;
     extractDocuments(docsWithBlanks);
     expect(result).toHaveLength(1);
-    expect(result[0][0]).toEqual('');
-    expect(result[0][1]).toEqual(`${anonymousDoc}
+    expect(result[0].name).toEqual('');
+    expect(result[0].content).toEqual(`${anonymousDoc}
 
-  ${nameddoc("doc1")}`)
+  ${nameddoc("doc1")}`);
+  });
+
+  it("cannot recognazie content-only named docs", () => {
+    const docWithNoYaml = `---noYaml
+This is content.`;
+    const secondDocWithNoYAML = `${anonymousDoc}
+${docWithNoYaml}
+`;
+    extractDocuments(secondDocWithNoYAML);
+    expect(result).toHaveLength(2);
+    expect(result[1].name).toEqual('noYaml');
+    expect(result[1].content).not.toEqual(`This is content.`);
   });
 });
