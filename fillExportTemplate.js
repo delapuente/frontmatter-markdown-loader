@@ -19,6 +19,10 @@ function fillTemplate(namedTransformations) {
 
   get vue() {
     return this._docs[0].vue;
+  },
+
+  get meta() {
+    return this._docs[0].meta;
   }
 })`
 }
