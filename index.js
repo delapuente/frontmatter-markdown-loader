@@ -29,7 +29,7 @@ module.exports = function (source) {
   const documents = namedSources.map(parse);
   const firstDocument = documents[0];
 
-  return transform(firstDocument, resourcePath, options, enabled);
+  return dump(firstDocument, resourcePath, options, enabled);
 }
 
 function parse({ name, content }, options) {
@@ -43,7 +43,7 @@ function parse({ name, content }, options) {
   }
 }
 
-function transform(fm, resourcePath, options, enabled) {
+function dump(document, resourcePath, options, enabled) {
   let output = '';
   const addProperty = (key, value) => {
     output += `
@@ -51,9 +51,9 @@ function transform(fm, resourcePath, options, enabled) {
     `;
   };
 
-  addProperty('attributes', stringify(fm.attributes));
-  if (enabled(Mode.HTML)) addProperty('html', stringify(fm.html));
-  if (enabled(Mode.BODY)) addProperty('body', stringify(fm.body));
+  addProperty('attributes', stringify(document.attributes));
+  if (enabled(Mode.HTML)) addProperty('html', stringify(document.html));
+  if (enabled(Mode.BODY)) addProperty('body', stringify(document.body));
   if (enabled(Mode.META)) {
     const meta = {
       resourcePath
@@ -63,7 +63,7 @@ function transform(fm, resourcePath, options, enabled) {
 
   if ((enabled(Mode.VUE_COMPONENT) || enabled(Mode.VUE_RENDER_FUNCTIONS)) && vueCompiler && vueCompilerStripWith) {
     const rootClass = options.vue && options.vue.root ? options.vue.root : 'frontmatter-markdown';
-    const template = fm
+    const template = document
       .html
       .replace(/<(code\s.+)>/g, "<$1 v-pre>")
       .replace(/<code>/g, "<code v-pre>");
