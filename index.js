@@ -2,6 +2,7 @@ const loaderUtils = require('loader-utils')
 const frontmatter = require('front-matter')
 const Mode = require('./mode')
 const extractDocuments = require('./extractDocuments')
+const mapDocuments = require('./mapDocuments')
 
 const md = require('markdown-it')({
   html: true,
@@ -24,21 +25,31 @@ module.exports = function (source) {
   const enabled = (mode) => requestedMode.includes(mode);
   const resourcePath = this.resourcePath;
 
-  const documents = extractDocuments(source);
+  const namedSources = extractDocuments(source);
+  const documents = namedSources.map(parse);
+  const firstDocument = documents[0];
 
-  return transform(source, resourcePath, options, enabled);
+  return transform(firstDocument, resourcePath, options, enabled);
 }
 
-function transform(source, resourcePath, options, enabled) {
+function parse({ name, content }, options) {
+  const fm = frontmatter(content)
+  fm.html = options.markdown ? options.markdown(fm.body) : md.render(fm.body);
+  return {
+    name,
+    attributes: fm.attributes,
+    html: fm.html,
+    body: fm.body
+  }
+}
+
+function transform(fm, resourcePath, options, enabled) {
   let output = '';
   const addProperty = (key, value) => {
     output += `
       ${key}: ${value},
     `;
   };
-
-  const fm = frontmatter(source);
-  fm.html = options.markdown ? options.markdown(fm.body) : md.render(fm.body);
 
   addProperty('attributes', stringify(fm.attributes));
   if (enabled(Mode.HTML)) addProperty('html', stringify(fm.html));
