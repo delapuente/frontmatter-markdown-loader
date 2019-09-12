@@ -10,6 +10,9 @@ const md = require('markdown-it')({
 
 const stringify = (src) => JSON.stringify(src).replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 
+const DEFAUT_NAME = 'default';
+const AUTO_NAME = '_';
+
 let vueCompiler, vueCompilerStripWith
 try {
   vueCompiler = require('vue-template-compiler')
@@ -27,7 +30,7 @@ module.exports = function (source) {
 
   const namedSources =
     !options.multiple ?
-    [{ name: 'default', content: source }] :
+    [{ name: DEFAUT_NAME, content: source }] :
     normalizeNames(extractDocuments(source), options);
 
   const documents = namedSources.map(parse);
@@ -42,9 +45,9 @@ function normalizeNames(namedSources) {
   return namedSources.map(({ name, content }, index) => {
     let newName = name;
     if (name === '') {
-      newName = defaultName;
+      newName = DEFAUT_NAME;
     }
-    if (name === '_') {
+    if (name === AUTO_NAME) {
       newName = '';
     }
     return { name: newName, content };

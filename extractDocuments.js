@@ -64,7 +64,7 @@ class FMDocumentFinder {
 
   _getLastDocument() {
     const document = {
-      name: this._documentName.trim(),
+      name: this._documentName,
       content: this._extractDocContent(this._startIndex, this._source.length)
     };
     this._done = true;
@@ -85,7 +85,7 @@ class FMDocumentFinder {
   }
 
   _advanceSearchTo({ name, startIndex }) {
-    this._documentName = name;
+    this._documentName = name.trim();
     this._startIndex = startIndex;
   }
 }
