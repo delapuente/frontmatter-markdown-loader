@@ -50,6 +50,47 @@ HELLO
 \`\`\`
 `;
 
+const severalDocumentsInOneSource = `---
+subject: Hello
+tags:
+  - tag1
+  - tag2
+---
+# Title
+
+GOOD \`BYE\` FRIEND
+
+---_
+subject: Another document
+tags:
+  - tag1
+  - tag2
+---
+# Another title
+
+AND MORE CONTENT
+
+---first-named-document
+subject: A named document
+tags:
+  - tag1
+  - tag2
+---
+# Named section
+
+MORE CONTENT
+
+---second
+subject: Another named document
+tags:
+  - tag1
+  - tag2
+---
+# Last section
+
+ALSO NAMED
+`;
+
 describe("frontmatter-markdown-loader", () => {
   afterEach(() => {
     loaded = undefined;
@@ -81,6 +122,83 @@ describe("frontmatter-markdown-loader", () => {
 
     it("doesn't return 'vue' property", () => {
       expect(loaded.vue).toBeUndefined();
+    });
+  });
+
+  describe("in multiple mode", () => {
+    beforeEach(() => {
+      const multipleMode = { ...defaultContext, query: { multiple: true }}
+      load(severalDocumentsInOneSource, multipleMode);
+    });
+
+    it("returns all documents in the 'all' property", () => {
+      expect(loaded.all).toHaveLength(4);
+      const [doc1, doc2, doc3, doc4] = loaded.all;
+      expect(doc1.name).toBe("default");
+      expect(doc1.html).toBe("<h1>Title</h1>\n<p>GOOD <code>BYE</code> FRIEND</p>\n");
+      expect(doc1.attributes).toEqual({
+        subject: "Hello",
+        tags: ["tag1", "tag2"]
+      });
+      expect(doc2.name).toBe("");
+      expect(doc2.html).toBe("<h1>Another title</h1>\n<p>AND MORE CONTENT</p>\n")
+      expect(doc2.attributes).toEqual({
+        subject: "Another document",
+        tags: ["tag1", "tag2"]
+      });
+      expect(doc3.name).toBe("first-named-document");
+      expect(doc3.html).toBe("<h1>Named section</h1>\n<p>MORE CONTENT</p>\n")
+      expect(doc3.attributes).toEqual({
+        subject: "A named document",
+        tags: ["tag1", "tag2"]
+      });
+      expect(doc4.name).toBe("second");
+      expect(doc4.html).toBe("<h1>Last section</h1>\n<p>ALSO NAMED</p>\n")
+      expect(doc4.attributes).toEqual({
+        subject: "Another named document",
+        tags: ["tag1", "tag2"]
+      });
+    });
+
+    it("returns only the named documents in the 'namedDocs' property", () => {
+      expect(Object.keys(loaded.namedDocs)).toHaveLength(3);
+      expect(loaded.namedDocs).toHaveProperty("default", {
+        name: "default",
+        html: "<h1>Title</h1>\n<p>GOOD <code>BYE</code> FRIEND</p>\n",
+        attributes: {
+          subject: "Hello",
+          tags: ["tag1", "tag2"]
+        }
+      });
+      expect(loaded.namedDocs)
+      .toHaveProperty("first-named-document", {
+        name: "first-named-document",
+        html: "<h1>Named section</h1>\n<p>MORE CONTENT</p>\n",
+        attributes: {
+          subject: "A named document",
+          tags: ["tag1", "tag2"]
+        }
+      });
+      expect(loaded.namedDocs)
+      .toHaveProperty("second", {
+        name: "second",
+        html: "<h1>Last section</h1>\n<p>ALSO NAMED</p>\n",
+        attributes: {
+          subject: "Another named document",
+          tags: ["tag1", "tag2"]
+        }
+      });
+    });
+
+    it("returns compiled HTML for 'html' property", () => {
+      expect(loaded.html).toBe("<h1>Title</h1>\n<p>GOOD <code>BYE</code> FRIEND</p>\n");
+    });
+
+    it("returns frontmatter object for 'attributes' property", () => {
+      expect(loaded.attributes).toEqual({
+        subject: "Hello",
+        tags: ["tag1", "tag2"]
+      });
     });
   });
 
