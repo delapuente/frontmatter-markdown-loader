@@ -13,48 +13,49 @@ function fillTemplate(namedTransformations) {
 
   const namedItems =
     namedTransformations
-    .filter(({ name }) => !!name )
-    .map(({ name, transformed }) => {
-      return `${JSON.stringify(name)}:${transformed}`;
+    .map(({ name }, index) => [name, index])
+    .filter(([name, _]) => !!name )
+    .map(([name, index ]) => {
+      return `get [${JSON.stringify(name)}]() { return _docs[${index}]; }`;
     });
 
-  return `({
-  _docs: [${transformations.join(', ')}],
+  return `(function () {
+    let _docs = [${transformations.join(', ')}];
+    let _named = {${namedItems.join(', ')}};
+    return {
+      get all() {
+        return _docs;
+      },
 
-  _named: {${namedItems.join(', ')}},
+      get namedDocs() {
+        return _named;
+      },
 
-  get all() {
-    return this._docs;
-  },
+      get name() {
+        return _docs[0].name;
+      },
 
-  get namedDocs() {
-    return this._named;
-  },
+      get attributes() {
+        return _docs[0].attributes;
+      },
 
-  get name() {
-    return this._docs[0].name;
-  },
+      get body() {
+        return _docs[0].body;
+      },
 
-  get attributes() {
-    return this._docs[0].attributes;
-  },
+      get html() {
+        return _docs[0].html;
+      },
 
-  get body() {
-    return this._docs[0].body;
-  },
+      get vue() {
+        return _docs[0].vue;
+      },
 
-  get html() {
-    return this._docs[0].html;
-  },
-
-  get vue() {
-    return this._docs[0].vue;
-  },
-
-  get meta() {
-    return this._docs[0].meta;
-  }
-})`
+      get meta() {
+        return _docs[0].meta;
+      }
+    };
+  }())`
 }
 
 module.exports = function (namedTransformations) {
